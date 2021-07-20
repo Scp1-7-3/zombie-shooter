@@ -1,4 +1,7 @@
 from pygame import *
+font.init()
+font2 = font.SysFont('Arial', 36)
+mixer.init()
 game = True
 clock = time.Clock()
 FPS = 120
@@ -24,6 +27,28 @@ class Player(GameSprite):
         if key_pressed[K_DOWN] and self.rect.y <= 592:
             self.rect.y += self.speed
 
+        global shoots
+
+        if key_pressed[K_SPACE] and shoots !=0:
+            shoot()
+        if self.rect.y == 108:
+            shoots = 30 
+
+class Bullet(GameSprite):
+    def update(self):
+        self.rect.x = self.rect.x - 10
+        if self.rect.x <= 0:
+            self.kill()
+
+shoots = 30  
+
+def shoot():
+    bullet = Bullet('bullet.png', turrel.rect.x, turrel.rect.y,10, 30, 15)
+    bullets.add(bullet)
+    global shoots
+    shoots = shoots - 1
+
+bullets = sprite.Group()
 
 turrel = Player('turrel.png', 860, 400,1, 138, 108)
 while game:
@@ -32,7 +57,12 @@ while game:
     for e in event.get():
         if e.type == QUIT:
             game = False
+    text = font2.render("Заряды " + str(shoots) , 1, (254, 195, 2))
+    win.blit(text, (300, 20))
+
     turrel.reset()
     turrel.update()
+    bullets.update()
+    bullets.draw(win)
     display.update()
     
