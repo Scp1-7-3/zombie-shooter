@@ -32,7 +32,7 @@ class Player(GameSprite):
         if key_pressed[K_SPACE] and shoots !=0:
             shoot()
         if self.rect.y == 108:
-            shoots = 30 
+            shoots = 50 
 
 class Bullet(GameSprite):
     def update(self):
@@ -40,10 +40,10 @@ class Bullet(GameSprite):
         if self.rect.x <= 0:
             self.kill()
 
-shoots = 30  
+shoots = 50  
 
 def shoot():
-    bullet = Bullet('bullet.png', turrel.rect.x, turrel.rect.y,10, 30, 15)
+    bullet = Bullet('bullet.png', turrel.rect.x-10, turrel.rect.y+15,10, 30, 15)
     bullets.add(bullet)
     global shoots
     shoots = shoots - 1
