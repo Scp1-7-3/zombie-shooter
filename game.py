@@ -12,7 +12,8 @@ place = transform.scale(image.load('place.png'),(1000,700))
 cooldown = 0
 cooldownr = 0
 cheat = 0
-
+death = 0
+finish = False
 class GameSprite(sprite.Sprite):
     def __init__(self, gamer_image,gamer_x, gamer_y, gamer_speed, size_x, size_y):
         super().__init__()
@@ -24,6 +25,9 @@ class GameSprite(sprite.Sprite):
     def reset(self):
         win.blit(self.image,(self.rect.x, self.rect.y))
 
+    def update(self):
+        if sprite.spritecollide(zombie, self, False):
+            turret.kill()
 class Player(GameSprite):
     def update(self):
         key_pressed = key.get_pressed()
@@ -35,21 +39,24 @@ class Player(GameSprite):
         global shoots
         global cooldown
         global cheat
-    
+        if key_pressed[K_c]:
+            cheat = 1 
         if not cooldown:
-            if key_pressed[K_SPACE] and shoots !=0:
-                shoot()
-                cooldown = 10
-            if cheat !=1:
+            if cheat ==1:
+                shoots = 9999999999999999
+                if key_pressed[K_SPACE] and shoots !=0:
+                    shoot()
+                    cooldown = 0
+            else:
+                if key_pressed[K_SPACE] and shoots !=0:
+                    shoot()
+                    cooldown = 10
+        
                 if len(bullets) >= 3:
                     cooldown = 100
                 else:
                     cooldown = 10
-
-            if key_pressed[K_c]:
-                cooldown = 0
-                shoots = 9999999
-                cheat = 1
+                
         else:
             cooldown -= 1
         global cooldownr
@@ -71,8 +78,9 @@ class Player(GameSprite):
 
 
 
-        if self.rect.y == 108:
+        if self.rect.y <= 108:
             shoots = 25 
+            cheat = 0
 
 class Bullet(GameSprite):
     def update(self):
@@ -87,23 +95,31 @@ def shoot():
     bullets.add(bullet)
     global shoots
     shoots = shoots - 1
-
-
+        
 
 class Zombie(GameSprite):
+    
     def update(self):
         self.rect.x = self.rect.x + 1
         sprite_list1 = sprite.groupcollide(zombies, bullets, True, True)
 
         if self.rect.x >= 1000:
             self.kill()
-zombies = sprite.Group()
+        global death
+        if self.rect.x >= 900:
+            death = death + 1
+            print(death)
+            self.kill()
+        
+
+
+
+zombies = sprite.Group() 
 bullets = sprite.Group()
+turrel = Player('turrel.png', 600, 400,3, 138, 108)
 
 
 
-
-turrel = Player('turrel.png', 860, 400,2, 138, 108)
 
 while game:
     clock.tick(FPS)
@@ -113,16 +129,30 @@ while game:
             game = False
     text = font2.render("Заряды " + str(shoots) , 1, (254, 195, 2))
     win.blit(text, (300, 20))
-    if len(zombies) <= 10:
-        zombie = Zombie('zombie.png', randint(-120, -10), randint(200, 600), randint(1, 10), 60, 70)
+    if len(zombies) <= 8:
+        zombie = Zombie('zombie.png', randint(-200, -100), randint(200, 600), randint(1, 100), 60, 80)
         zombies.add(zombie)
     text2  = font2.render("+ПАТРОНЫ", 1,(0,0,0))
-    win.blit(text2,(760,160))
-    turrel.reset()
-    turrel.update()
-    bullets.update()
-    bullets.draw(win)
-    zombies.update()
-    zombies.draw(win)
+    win.blit(text2,(600,160))
+    if death == 0:
+            house_full = transform.scale(image.load('house_full.png'),(200,650))
+            win.blit(house_full,(800,10))
+    elif death == 1:
+        
+        house_half = transform.scale(image.load('house_half.png'),(200,650))
+        win.blit(house_half,(800,10))
+    elif death == 2:
+        house_dead = transform.scale(image.load('house_dead.png'),(200,650))
+        win.blit(house_dead,(800,10))
+        finish = True
+        
+    if not finish:
+        turrel.reset()
+        turrel.update()
+        bullets.update()
+        bullets.draw(win)
+        zombies.update()
+        zombies.draw(win)
+    
     display.update()
     
