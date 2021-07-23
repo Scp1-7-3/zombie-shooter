@@ -110,7 +110,7 @@ class Zombie(GameSprite):
             global score
             if sprite_list1:
                 score = score + 1
-                print(score)
+                
             if self.rect.x >= 1000:
                 self.kill()
             global death
